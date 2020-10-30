@@ -35,16 +35,15 @@ def instance_vert():
 
 
 def get_face_center(p_face_name):
-    vertex_positions = dt.Vector(
-        cmds.xform(p_face_name, q=True, ws=True, t=True))
+    vertex_positions = cmds.xform(p_face_name, q=True, ws=True, t=True)
 
     _sum = dt.Vector(0, 0, 0)
     for v in vertex_positions:
-        _sum = _sum.__add__(v)
+        _sum = _sum + v
 
-    num_vertices = dt.length(vertex_positions)
+    num_vertices = len(vertex_positions)
 
-    average = _sum.__div__(num_vertices)
+    average = _sum / num_vertices
 
     # if (_sum == 0) or (num_vertices == 0):
     #   average = [0, 0, 0]
@@ -57,7 +56,7 @@ def get_face_center(p_face_name):
 def instance_face():
     selection = cmds.ls(os=True, fl=True)
     face_name = cmds.filterExpand(selection, selectionMask=34,
-                                  expand=True) or []
+                                  expand=True)
 
     object_to_instance = selection[0]
 
@@ -72,3 +71,5 @@ def instance_face():
                       a=True, ws=True)
     else:
         print("Please ensure the first object you select is a transform.")
+
+
