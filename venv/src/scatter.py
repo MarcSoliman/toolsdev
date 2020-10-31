@@ -35,7 +35,10 @@ def instance_vert():
 
 
 def get_face_center(p_face_name):
-    vertex_positions = cmds.xform(p_face_name, q=True, ws=True, t=True)
+    vertex_positions = (cmds.xform(p_face_name, q=True, ws=True, t=True))
+
+    vertex_positions = [vertex_positions[n:n+3] for n in range(0,
+                                        len(vertex_positions), 3)]
 
     _sum = dt.Vector(0, 0, 0)
     for v in vertex_positions:
