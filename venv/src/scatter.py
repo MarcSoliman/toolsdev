@@ -3,7 +3,6 @@ from pymel.all import *
 import pymel.core.datatypes as dt
 
 import maya.cmds as cmds
-import maya.mel as mel
 
 
 def create_cylinder():
@@ -37,8 +36,10 @@ def instance_vert():
 def get_face_center(p_face_name):
     vertex_positions = (cmds.xform(p_face_name, q=True, ws=True, t=True))
 
-    vertex_positions = [vertex_positions[n:n+3] for n in range(0,
-                                        len(vertex_positions), 3)]
+    vertex_positions = [vertex_positions[n:n + 3] for n in range(0,
+                                                                 len(
+                                                                     vertex_positions),
+                                                                 3)]
 
     _sum = dt.Vector(0, 0, 0)
     for v in vertex_positions:
@@ -48,12 +49,12 @@ def get_face_center(p_face_name):
 
     average = _sum / num_vertices
 
-    # if (_sum == 0) or (num_vertices == 0):
-    #   average = [0, 0, 0]
-    #   cmds.warning("Attempt to divide by 0")
+    if (_sum == 0) or (num_vertices == 0):
+        average = [0, 0, 0]
+        cmds.warning("Attempt to divide by 0")
 
-    # else:
-    return average
+    else:
+        return average
 
 
 def instance_face():
@@ -62,7 +63,7 @@ def instance_face():
                                   expand=True)
 
     object_to_instance = selection[0]
-
+    main_object = selection[1]
     if cmds.objectType(object_to_instance, isType="transform"):
 
         for face in face_name:
@@ -70,9 +71,11 @@ def instance_face():
 
             position = get_face_center(str(face))
 
+            cmds.normalConstraint(main_object, new_instance)
+
             cmds.move(position[0], position[1], position[2], new_instance,
                       a=True, ws=True)
+
+
     else:
         print("Please ensure the first object you select is a transform.")
-
-
