@@ -1,8 +1,11 @@
 from pymel.all import *
 
 import pymel.core.datatypes as dt
+import pymel.core as pm
 
 import maya.cmds as cmds
+
+import random
 
 
 def create_cylinder():
@@ -76,6 +79,44 @@ def instance_face():
             cmds.move(position[0], position[1], position[2], new_instance,
                       a=True, ws=True)
 
-
     else:
         print("Please ensure the first object you select is a transform.")
+
+
+def get_instances():
+    selection = cmds.ls(os=True)
+    obj_name = selection[0]
+    instance_names = cmds.ls(obj_name[:-1] + '*')
+    instance_names = filter(lambda x: not x.endswith('_normalConstraint1'),
+                            instance_names)
+
+    return instance_names
+
+
+def random_rotate(p_x_min, p_x_max, p_y_min, p_y_max, p_z_min, p_z_max):
+    random_rotation_x = random.uniform(p_x_min, p_x_max)
+    random_rotation_y = random.uniform(p_y_min, p_y_max)
+    random_rotation_z = random.uniform(p_z_min, p_z_max)
+
+    cmds.rotate(0 + random_rotation_x, 0 + random_rotation_y, 0 +
+                random_rotation_z, get_instances())
+
+
+def random_scale(p_min, p_max):
+
+    random_size = random.uniform(float(p_min), float(p_max))
+    # random_size_x = random.uniform(0.0, 2.0)
+    # random_size_y = random.uniform(0.0, 2.0)
+    # random_size_z = random.uniform(0.0, 2.0)
+
+    cmds.scale(1, 1, 1, get_instances())
+
+    cmds.scale((1 * random_size), (1 * random_size),
+               (1 * random_size), get_instances())
+
+    if (p_min == 1) & (p_max == 1):
+        cmds.scale(1, 1, 1)
+    print(random_size)
+
+
+
