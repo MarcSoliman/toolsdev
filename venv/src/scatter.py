@@ -51,7 +51,6 @@ class TestTool(QtWidgets.QDialog):
 
         """LAYOUTS"""
         main_lay = QtWidgets.QVBoxLayout(self)
-        main_lay.addWidget
         main_lay.addWidget(self.title_lbl)
         main_lay.addWidget(self.scatter_lbl)
         main_lay.addWidget(self.scatter_button)
@@ -155,8 +154,7 @@ class TestTool(QtWidgets.QDialog):
     def instance_vert(self):
         self.selection = cmds.ls(os=True, fl=True)
         self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
-                                             expand=True) \
-                           or []
+                                             expand=True) or []
         self.object_to_instance = self.selection[0]
 
         # print(vertex_name)
@@ -180,12 +178,12 @@ class TestTool(QtWidgets.QDialog):
     @QtCore.Slot()
     def rand_scale_min(self):
         self.p_min = self.rand_spinbox_min.value()
-        return self.p_min;
+        return self.p_min
 
     @QtCore.Slot()
     def rand_scale_max(self):
         self.p_max = self.rand_spinbox_max.value()
-        return self.p_max;
+        return self.p_max
 
     @QtCore.Slot()
     def random_scale(self):
@@ -210,32 +208,32 @@ class TestTool(QtWidgets.QDialog):
     @QtCore.Slot()
     def p_rand_rot_x_min(self):
         self.p_x_min = self.rand_rot_x_min.value()
-        return self.p_x_min;
+        return self.p_x_min
 
     @QtCore.Slot()
     def p_rand_rot_x_max(self):
         self.p_x_max = self.rand_rot_x_max.value()
-        return self.p_x_max;
+        return self.p_x_max
 
     @QtCore.Slot()
     def p_rand_rot_y_min(self):
         self.p_y_min = self.rand_rot_y_min.value()
-        return self.p_y_min;
+        return self.p_y_min
 
     @QtCore.Slot()
     def p_rand_rot_y_max(self):
         self.p_y_max = self.rand_rot_y_max.value()
-        return self.p_y_max;
+        return self.p_y_max
 
     @QtCore.Slot()
     def p_rand_rot_z_min(self):
         self.p_z_min = self.rand_rot_z_min.value()
-        return self.p_z_min;
+        return self.p_z_min
 
     @QtCore.Slot()
     def p_rand_rot_z_max(self):
         self.p_z_max = self.rand_rot_z_max.value()
-        return self.p_z_max;
+        return self.p_z_max
 
     @QtCore.Slot()
     def random_rotate(self):
@@ -271,29 +269,12 @@ def create_cylinder():
     cmds.polyCylinder()
 
 
-"""def instance_vert():
-    selection = cmds.ls(os=True, fl=True)
-    vertex_name = cmds.filterExpand(selection, selectionMask=31, expand=True) \
-                  or []
-    object_to_instance = selection[0]
-    # print(vertex_name)
-    if cmds.objectType(object_to_instance, isType="transform"):
-        for vertex in vertex_name:
-            new_instance = cmds.instance(object_to_instance)
-            position = cmds.pointPosition(vertex, w=True)
-            cmds.move(position[0], position[1],
-                      position[2], new_instance, a=True, ws=True)
-    else:
-        print("Please ensure the first object you select is a transform.")
-    # Gets the center of the object's face"""
-
-
-def get_face_center(p_face_name):
+# Functions which will be used to expand on the tool
+"""def get_face_center(p_face_name):
     vertex_positions = (cmds.xform(p_face_name, q=True, ws=True, t=True))
 
-    vertex_positions = [vertex_positions[n:n + 3] for n in range(0,
-                                                                 len(
-                                                                     vertex_positions),
+    vertex_positions = [vertex_positions[n:n + 3] for n in range(0, len(
+                                                        vertex_positions),
                                                                  3)]
 
     _sum = dt.Vector(0, 0, 0)
@@ -309,10 +290,9 @@ def get_face_center(p_face_name):
         cmds.warning("Attempt to divide by 0")
 
     else:
-        return average
+        return average"""
 
-
-def instance_face():
+"""def instance_face():
     selection = cmds.ls(os=True, fl=True)
     face_name = cmds.filterExpand(selection, selectionMask=34,
                                   expand=True)
@@ -332,32 +312,4 @@ def instance_face():
                       a=True, ws=True)
 
     else:
-        print("Please ensure the first object you select is a transform.")
-
-
-"""def get_instances():
-    selection = cmds.ls(os=True)
-    obj_name = selection[0]
-    instance_names = cmds.ls(obj_name[:-1] + '*')
-    instance_names = filter(lambda x: not x.endswith('_normalConstraint1'),
-                            instance_names)
-    return instance_names"""
-
-"""def random_rotate(p_x_min, p_x_max, p_y_min, p_y_max, p_z_min, p_z_max):
-    random_rotation_x = random.uniform(p_x_min, p_x_max)
-    random_rotation_y = random.uniform(p_y_min, p_y_max)
-    random_rotation_z = random.uniform(p_z_min, p_z_max)
-    cmds.rotate(0 + random_rotation_x, 0 + random_rotation_y, 0 +
-                random_rotation_z, get_instances())"""
-
-"""def random_scale(p_min, p_max):
-    random_size = random.uniform(float(p_min), float(p_max))
-    # random_size_x = random.uniform(0.0, 2.0)
-    # random_size_y = random.uniform(0.0, 2.0)
-    # random_size_z = random.uniform(0.0, 2.0)
-    cmds.scale(1, 1, 1, get_instances())
-    cmds.scale((1 * random_size), (1 * random_size),
-               (1 * random_size), get_instances())
-    if (p_min == 1) & (p_max == 1):
-        cmds.scale(1, 1, 1)
-    print(random_size)"""
+        print("Please ensure the first object you select is a transform.")"""
