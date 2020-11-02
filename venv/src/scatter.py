@@ -30,6 +30,8 @@ class TestTool(QtWidgets.QDialog):
                             WindowContextHelpButtonHint)
 
         self.create_ui()
+        self.create_connections()
+
 
     def create_ui(self):
         """WIDGETS"""
@@ -61,28 +63,39 @@ class TestTool(QtWidgets.QDialog):
         self.setLayout(main_lay)
 
     def create_connections(self):
-        pass
+        self.scatter_button.clicked.connect(self.instance_vert)
+        self.rand_spinbox_min.valueChanged.connect(self.rand_scale_min)
+        self.rand_spinbox_max.valueChanged.connect(self.rand_scale_max)
+        self.rand_scale_button.clicked.connect(self.random_scale)
+
+        self.rand_rot_x_min.valueChanged.connect(self.p_rand_rot_x_min)
+        self.rand_rot_x_max.valueChanged.connect(self.p_rand_rot_x_max)
+        self.rand_rot_y_min.valueChanged.connect(self.p_rand_rot_y_min)
+        self.rand_rot_y_max.valueChanged.connect(self.p_rand_rot_y_max)
+        self.rand_rot_z_min.valueChanged.connect(self.p_rand_rot_z_min)
+        self.rand_rot_z_max.valueChanged.connect(self.p_rand_rot_z_max)
+        self.rand_rot_button.clicked.connect(self.random_rotate)
 
     def random_scale_ui(self):
         self.rand_scale_title = QtWidgets.QLabel("Random Scale")
-        self.rand_scale_min = QtWidgets.QDoubleSpinBox()
-        self.rand_scale_min.setButtonSymbols(
+        self.rand_spinbox_min = QtWidgets.QDoubleSpinBox()
+        self.rand_spinbox_min.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
-        self.rand_scale_min.setFixedWidth(50)
+        self.rand_spinbox_min.setFixedWidth(50)
 
-        self.rand_scale_max = QtWidgets.QDoubleSpinBox()
-        self.rand_scale_max.setButtonSymbols(
+        self.rand_spinbox_max = QtWidgets.QDoubleSpinBox()
+        self.rand_spinbox_max.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
-        self.rand_scale_max.setFixedWidth(50
+        self.rand_spinbox_max.setFixedWidth(50
                                           )
         self.rand_scale_button = QtWidgets.QPushButton("Apply")
 
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.rand_scale_button)
         layout.addWidget(self.rand_scale_title)
-        layout.addWidget(self.rand_scale_min, 1, 0)
+        layout.addWidget(self.rand_spinbox_min, 1, 0)
         layout.addWidget(QtWidgets.QLabel("min value"), 1, 0)
-        layout.addWidget(self.rand_scale_max, 1, 0)
+        layout.addWidget(self.rand_spinbox_max, 1, 0)
         layout.addWidget(QtWidgets.QLabel("max value"), 9, 0)
 
         return layout
@@ -139,6 +152,107 @@ class TestTool(QtWidgets.QDialog):
 
         return layout
 
+    @QtCore.Slot()
+    def instance_vert(self):
+        self.selection = cmds.ls(os=True, fl=True)
+        self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
+                                        expand=True) \
+                      or []
+        self.object_to_instance = self.selection[0]
+
+        # print(vertex_name)
+
+        if cmds.objectType(self.object_to_instance, isType="transform"):
+
+            for self.vertex in self.vertex_name:
+                self.new_instance = cmds.instance(self.object_to_instance)
+
+                self.position = cmds.pointPosition(self.vertex, w=True)
+
+                cmds.move(self.position[0], self.position[1],
+                          self.position[2], self.new_instance, a=True, ws=True)
+
+        else:
+            print("Please ensure the first object you select is a transform.")
+
+        # Gets the center of the object's face
+
+    @QtCore.Slot()
+    def rand_scale_min(self):
+        self.p_min = self.rand_spinbox_min.value()
+        return self.p_min;
+
+
+    @QtCore.Slot()
+    def rand_scale_max(self):
+        self.p_max = self.rand_spinbox_max.value()
+        return self.p_max;
+
+
+    @QtCore.Slot()
+    def random_scale(self):
+        self.random_size = random.uniform(float(self.p_min), float(self.p_max))
+
+        cmds.scale(1, 1, 1, self.get_instances)
+
+        cmds.scale((1 * self.random_size), (1 * self.random_size),
+                   (1 * self.random_size), self.get_instances)
+
+        if (self.rand_scale_min == 1) & (self.rand_scale_max == 1):
+            cmds.scale(1, 1, 1)
+
+        return self.random_scale
+        print(self.random_size)
+
+    @QtCore.Slot()
+    def p_rand_rot_x_min(self):
+        self.p_x_min = self.rand_rot_x_min.value()
+        return self.p_x_min;
+
+    @QtCore.Slot()
+    def p_rand_rot_x_max(self):
+        self.p_x_max = self.rand_rot_x_max.value()
+        return self.p_x_max;
+
+    @QtCore.Slot()
+    def p_rand_rot_y_min(self):
+        self.p_y_min = self.rand_rot_y_min.value()
+        return self.p_y_min;
+
+    @QtCore.Slot()
+    def p_rand_rot_y_max(self):
+        self.p_y_max = self.rand_rot_y_max.value()
+        return self.p_y_max;
+
+    @QtCore.Slot()
+    def p_rand_rot_z_min(self):
+        self.p_z_min = self.rand_rot_z_min.value()
+        return self.p_z_min;
+
+    @QtCore.Slot()
+    def p_rand_rot_z_max(self):
+        self.p_z_max = self.rand_rot_z_max.value()
+        return self.p_z_max;
+
+    @QtCore.Slot()
+    def random_rotate(self):
+        self.random_rotation_x = random.uniform(self.p_x_min, self.p_x_max)
+        self.random_rotation_y = random.uniform(self.p_y_min, self.p_y_max)
+        self.random_rotation_z = random.uniform(self.p_z_min, self.p_z_max)
+
+        cmds.rotate(0 + self.random_rotation_x, 0 + self.random_rotation_y, 0 +
+                    self.random_rotation_z, self.get_instances)
+
+    @property
+    def get_instances(self):
+        self.selection = cmds.ls(os=True)
+        self.obj_name = self.selection[0]
+        self.instance_names = cmds.ls(self.obj_name[:-1] + '*')
+        self.instance_names = filter(lambda x: not x.endswith('_normalConstraint1'),
+                                self.instance_names)
+
+        return self.instance_names
+
 
 if __name__ == "__main__":
     d = TestTool()
@@ -149,7 +263,7 @@ def create_cylinder():
     cmds.polyCylinder()
 
 
-def instance_vert():
+"""def instance_vert():
     selection = cmds.ls(os=True, fl=True)
     vertex_name = cmds.filterExpand(selection, selectionMask=31, expand=True) \
                   or []
@@ -170,7 +284,7 @@ def instance_vert():
     else:
         print("Please ensure the first object you select is a transform.")
 
-    # Gets the center of the object's face
+    # Gets the center of the object's face"""
 
 
 def get_face_center(p_face_name):
@@ -220,26 +334,26 @@ def instance_face():
         print("Please ensure the first object you select is a transform.")
 
 
-def get_instances():
+"""def get_instances():
     selection = cmds.ls(os=True)
     obj_name = selection[0]
     instance_names = cmds.ls(obj_name[:-1] + '*')
     instance_names = filter(lambda x: not x.endswith('_normalConstraint1'),
                             instance_names)
 
-    return instance_names
+    return instance_names"""
 
 
-def random_rotate(p_x_min, p_x_max, p_y_min, p_y_max, p_z_min, p_z_max):
+"""def random_rotate(p_x_min, p_x_max, p_y_min, p_y_max, p_z_min, p_z_max):
     random_rotation_x = random.uniform(p_x_min, p_x_max)
     random_rotation_y = random.uniform(p_y_min, p_y_max)
     random_rotation_z = random.uniform(p_z_min, p_z_max)
 
     cmds.rotate(0 + random_rotation_x, 0 + random_rotation_y, 0 +
-                random_rotation_z, get_instances())
+                random_rotation_z, get_instances())"""
 
 
-def random_scale(p_min, p_max):
+"""def random_scale(p_min, p_max):
     random_size = random.uniform(float(p_min), float(p_max))
     # random_size_x = random.uniform(0.0, 2.0)
     # random_size_y = random.uniform(0.0, 2.0)
@@ -252,4 +366,4 @@ def random_scale(p_min, p_max):
 
     if (p_min == 1) & (p_max == 1):
         cmds.scale(1, 1, 1)
-    print(random_size)
+    print(random_size)"""
