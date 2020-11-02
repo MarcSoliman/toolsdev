@@ -171,6 +171,7 @@ class TestTool(QtWidgets.QDialog):
 
                 cmds.move(self.position[0], self.position[1],
                           self.position[2], self.new_instance, a=True, ws=True)
+                cmds.rename(self.new_instance, "instance")
 
         else:
             print("Please ensure the first object you select is a transform.")
@@ -268,22 +269,15 @@ def create_cylinder():
     vertex_name = cmds.filterExpand(selection, selectionMask=31, expand=True) \
                   or []
     object_to_instance = selection[0]
-
     # print(vertex_name)
-
     if cmds.objectType(object_to_instance, isType="transform"):
-
         for vertex in vertex_name:
             new_instance = cmds.instance(object_to_instance)
-
             position = cmds.pointPosition(vertex, w=True)
-
             cmds.move(position[0], position[1],
                       position[2], new_instance, a=True, ws=True)
-
     else:
         print("Please ensure the first object you select is a transform.")
-
     # Gets the center of the object's face"""
 
 
@@ -340,7 +334,6 @@ def instance_face():
     instance_names = cmds.ls(obj_name[:-1] + '*')
     instance_names = filter(lambda x: not x.endswith('_normalConstraint1'),
                             instance_names)
-
     return instance_names"""
 
 
@@ -348,7 +341,6 @@ def instance_face():
     random_rotation_x = random.uniform(p_x_min, p_x_max)
     random_rotation_y = random.uniform(p_y_min, p_y_max)
     random_rotation_z = random.uniform(p_z_min, p_z_max)
-
     cmds.rotate(0 + random_rotation_x, 0 + random_rotation_y, 0 +
                 random_rotation_z, get_instances())"""
 
@@ -358,12 +350,9 @@ def instance_face():
     # random_size_x = random.uniform(0.0, 2.0)
     # random_size_y = random.uniform(0.0, 2.0)
     # random_size_z = random.uniform(0.0, 2.0)
-
     cmds.scale(1, 1, 1, get_instances())
-
     cmds.scale((1 * random_size), (1 * random_size),
                (1 * random_size), get_instances())
-
     if (p_min == 1) & (p_max == 1):
         cmds.scale(1, 1, 1)
     print(random_size)"""
