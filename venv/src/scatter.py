@@ -1,11 +1,148 @@
 from pymel.all import *
 
+from PySide2 import QtWidgets, QtCore, QtGui, __version__
+from shiboken2 import wrapInstance
+import maya.OpenMayaUI as omui
+
 import pymel.core.datatypes as dt
 import pymel.core as pm
 
 import maya.cmds as cmds
 
 import random
+
+
+def maya_main_window():
+    """Return the maya main window widget"""
+    main_window = omui.MQtUtil.mainWindow()
+    return wrapInstance(long(main_window), QtWidgets.QWidget)
+
+
+class TestTool(QtWidgets.QDialog):
+    def __init__(self, parent=maya_main_window()):
+        super(TestTool, self).__init__(parent)
+
+        self.setWindowTitle("Scatter Tool")
+        self.setMinimumWidth(750)
+        self.setMaximumHeight(200)
+        self.setMaximumWidth(900)
+        self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.
+                            WindowContextHelpButtonHint)
+
+        self.create_ui()
+
+    def create_ui(self):
+        """WIDGETS"""
+        self.title_lbl = QtWidgets.QLabel("Scatter Tool")
+        self.title_lbl.setStyleSheet("font: bold 20px")
+
+        self.scatter_button = QtWidgets.QPushButton("Scatter")
+
+        self.scatter_lbl = QtWidgets.QLabel("Make your selections before "
+                                            "Scattering")
+        self.scatter_lbl.setStyleSheet("font:bold 15px")
+
+        self.scatter_button = QtWidgets.QPushButton("Scatter")
+
+        self.rand_rotation = self.random_rotation_ui()
+
+        self.rand_scale = self.random_scale_ui()
+
+        """LAYOUTS"""
+        main_lay = QtWidgets.QVBoxLayout(self)
+        main_lay.addWidget
+        main_lay.addWidget(self.title_lbl)
+        main_lay.addWidget(self.scatter_lbl)
+        main_lay.addWidget(self.scatter_button)
+        main_lay.addStretch()
+        main_lay.addLayout(self.random_rotation_ui())
+        main_lay.addLayout(self.random_scale_ui())
+
+        self.setLayout(main_lay)
+
+    def create_connections(self):
+        pass
+
+    def random_scale_ui(self):
+        self.rand_scale_title = QtWidgets.QLabel("Random Scale")
+        self.rand_scale_min = QtWidgets.QDoubleSpinBox()
+        self.rand_scale_min.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_scale_min.setFixedWidth(50)
+
+        self.rand_scale_max = QtWidgets.QDoubleSpinBox()
+        self.rand_scale_max.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_scale_max.setFixedWidth(50
+                                          )
+        self.rand_scale_button = QtWidgets.QPushButton("Apply")
+
+        layout = QtWidgets.QHBoxLayout()
+        layout.addWidget(self.rand_scale_button)
+        layout.addWidget(self.rand_scale_title)
+        layout.addWidget(self.rand_scale_min, 1, 0)
+        layout.addWidget(QtWidgets.QLabel("min value"), 1, 0)
+        layout.addWidget(self.rand_scale_max, 1, 0)
+        layout.addWidget(QtWidgets.QLabel("max value"), 9, 0)
+
+        return layout
+
+    def random_rotation_ui(self):
+        self.rand_rotation_title = QtWidgets.QLabel("Random Rotation")
+        self.rand_rot_x_min = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_x_min.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_rot_x_min.setFixedWidth(50)
+
+        self.rand_rot_x_max = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_x_max.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_rot_x_max.setFixedWidth(50)
+
+        self.rand_rot_y_min = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_y_min.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_rot_y_min.setFixedWidth(50)
+
+        self.rand_rot_y_max = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_y_max.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_rot_y_max.setFixedWidth(50)
+
+        self.rand_rot_z_min = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_z_min.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_rot_z_min.setFixedWidth(50)
+
+        self.rand_rot_z_max = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_z_max.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.rand_rot_z_max.setFixedWidth(50)
+
+        self.rand_rot_button = QtWidgets.QPushButton("Apply")
+
+        layout = QtWidgets.QHBoxLayout()
+        layout.addWidget(self.rand_rot_button)
+        layout.addWidget(self.rand_rotation_title)
+        layout.addWidget(self.rand_rot_x_min)
+        layout.addWidget(QtWidgets.QLabel("x_min"))
+        layout.addWidget(self.rand_rot_x_max)
+        layout.addWidget(QtWidgets.QLabel("x_max"))
+        layout.addWidget(self.rand_rot_y_min)
+        layout.addWidget(QtWidgets.QLabel("y_min"))
+        layout.addWidget(self.rand_rot_y_max)
+        layout.addWidget(QtWidgets.QLabel("y_max"))
+        layout.addWidget(self.rand_rot_z_min)
+        layout.addWidget(QtWidgets.QLabel("z_min"))
+        layout.addWidget(self.rand_rot_z_max)
+        layout.addWidget(QtWidgets.QLabel("z_max"))
+
+        return layout
+
+
+if __name__ == "__main__":
+    d = TestTool()
+    d.show()
 
 
 def create_cylinder():
@@ -103,7 +240,6 @@ def random_rotate(p_x_min, p_x_max, p_y_min, p_y_max, p_z_min, p_z_max):
 
 
 def random_scale(p_min, p_max):
-
     random_size = random.uniform(float(p_min), float(p_max))
     # random_size_x = random.uniform(0.0, 2.0)
     # random_size_y = random.uniform(0.0, 2.0)
@@ -117,6 +253,3 @@ def random_scale(p_min, p_max):
     if (p_min == 1) & (p_max == 1):
         cmds.scale(1, 1, 1)
     print(random_size)
-
-
-
