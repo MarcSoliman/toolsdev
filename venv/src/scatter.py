@@ -32,7 +32,6 @@ class TestTool(QtWidgets.QDialog):
         self.create_ui()
         self.create_connections()
 
-
     def create_ui(self):
         """WIDGETS"""
         self.title_lbl = QtWidgets.QLabel("Scatter Tool")
@@ -87,7 +86,7 @@ class TestTool(QtWidgets.QDialog):
         self.rand_spinbox_max.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_spinbox_max.setFixedWidth(50
-                                          )
+                                            )
         self.rand_scale_button = QtWidgets.QPushButton("Apply")
 
         layout = QtWidgets.QHBoxLayout()
@@ -156,8 +155,8 @@ class TestTool(QtWidgets.QDialog):
     def instance_vert(self):
         self.selection = cmds.ls(os=True, fl=True)
         self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
-                                        expand=True) \
-                      or []
+                                             expand=True) \
+                           or []
         self.object_to_instance = self.selection[0]
 
         # print(vertex_name)
@@ -183,27 +182,30 @@ class TestTool(QtWidgets.QDialog):
         self.p_min = self.rand_spinbox_min.value()
         return self.p_min;
 
-
     @QtCore.Slot()
     def rand_scale_max(self):
         self.p_max = self.rand_spinbox_max.value()
         return self.p_max;
 
-
     @QtCore.Slot()
     def random_scale(self):
-        self.random_size = random.uniform(float(self.p_min), float(self.p_max))
 
-        cmds.scale(1, 1, 1, self.get_instances)
+        obj_list = cmds.ls('instance*')
+        obj_list.pop()
+        # print(obj_list)
+        for instance in obj_list:
+            random_size = random.uniform(float(self.p_min), float(self.p_max))
 
-        cmds.scale((1 * self.random_size), (1 * self.random_size),
-                   (1 * self.random_size), self.get_instances)
+            cmds.scale(1, 1, 1, instance)
 
-        if (self.rand_scale_min == 1) & (self.rand_scale_max == 1):
-            cmds.scale(1, 1, 1)
+            cmds.scale((1 * random_size), (1 * random_size),
+                       (1 * random_size), instance)
 
-        return self.random_scale
-        print(self.random_size)
+            if (self.p_min == 1) & (self.p_max == 1):
+                cmds.scale(1, 1, 1)
+
+            # return self.random_scale
+            # print(self.random_scale)
 
     @QtCore.Slot()
     def p_rand_rot_x_min(self):
@@ -237,20 +239,25 @@ class TestTool(QtWidgets.QDialog):
 
     @QtCore.Slot()
     def random_rotate(self):
-        self.random_rotation_x = random.uniform(self.p_x_min, self.p_x_max)
-        self.random_rotation_y = random.uniform(self.p_y_min, self.p_y_max)
-        self.random_rotation_z = random.uniform(self.p_z_min, self.p_z_max)
+        obj_list = cmds.ls('instance*')
+        obj_list.pop()
+        for instance in obj_list:
+            random_rotation_x = random.uniform(self.p_x_min, self.p_x_max)
+            random_rotation_y = random.uniform(self.p_y_min, self.p_y_max)
+            random_rotation_z = random.uniform(self.p_z_min, self.p_z_max)
 
-        cmds.rotate(0 + self.random_rotation_x, 0 + self.random_rotation_y, 0 +
-                    self.random_rotation_z, self.get_instances)
+            cmds.rotate(random_rotation_x,
+                        random_rotation_y,
+                        random_rotation_z, instance)
 
     @property
     def get_instances(self):
         self.selection = cmds.ls(os=True)
         self.obj_name = self.selection[0]
         self.instance_names = cmds.ls(self.obj_name[:-1] + '*')
-        self.instance_names = filter(lambda x: not x.endswith('_normalConstraint1'),
-                                self.instance_names)
+        self.instance_names = filter(
+            lambda x: not x.endswith('_normalConstraint1'),
+            self.instance_names)
 
         return self.instance_names
 
@@ -336,14 +343,12 @@ def instance_face():
                             instance_names)
     return instance_names"""
 
-
 """def random_rotate(p_x_min, p_x_max, p_y_min, p_y_max, p_z_min, p_z_max):
     random_rotation_x = random.uniform(p_x_min, p_x_max)
     random_rotation_y = random.uniform(p_y_min, p_y_max)
     random_rotation_z = random.uniform(p_z_min, p_z_max)
     cmds.rotate(0 + random_rotation_x, 0 + random_rotation_y, 0 +
                 random_rotation_z, get_instances())"""
-
 
 """def random_scale(p_min, p_max):
     random_size = random.uniform(float(p_min), float(p_max))
