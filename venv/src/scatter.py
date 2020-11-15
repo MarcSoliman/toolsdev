@@ -38,10 +38,16 @@ class TestTool(QtWidgets.QDialog):
         self.title_lbl.setStyleSheet("font: bold 20px")
 
         self.scatter_button = QtWidgets.QPushButton("Scatter")
+        self.scatter_to_normal_button = QtWidgets.QPushButton("Scatter to Normals")
+        self.random_dense_spinbox = QtWidgets.QSpinBox()
+        self.random_dense_spinbox.setFixedWidth(50)
 
         self.scatter_lbl = QtWidgets.QLabel("Make your selections before "
                                             "Scattering")
         self.scatter_lbl.setStyleSheet("font:bold 15px")
+
+        self.rand_dense_lbl = QtWidgets.QLabel("Density Modifier")
+        self.rand_dense_lbl.setStyleSheet("font:bold 14px")
 
         self.scatter_button = QtWidgets.QPushButton("Scatter")
 
@@ -54,6 +60,9 @@ class TestTool(QtWidgets.QDialog):
         main_lay.addWidget(self.title_lbl)
         main_lay.addWidget(self.scatter_lbl)
         main_lay.addWidget(self.scatter_button)
+        main_lay.addWidget(self.scatter_to_normal_button)
+        main_lay.addWidget(self.rand_dense_lbl, 0, 4)
+
         main_lay.addStretch()
         main_lay.addLayout(self.random_rotation_ui())
         main_lay.addLayout(self.random_scale_ui())
@@ -62,9 +71,13 @@ class TestTool(QtWidgets.QDialog):
 
     def create_connections(self):
         self.scatter_button.clicked.connect(self.instance_vert)
+        self.scatter_to_normal_button.clicked.connect(self.orient_to_normals)
+
+
         self.rand_spinbox_min.valueChanged.connect(self.rand_scale_min)
         self.rand_spinbox_max.valueChanged.connect(self.rand_scale_max)
         self.rand_scale_button.clicked.connect(self.random_scale)
+
 
         self.rand_rot_x_min.valueChanged.connect(self.p_rand_rot_x_min)
         self.rand_rot_x_max.valueChanged.connect(self.p_rand_rot_x_max)
@@ -156,6 +169,7 @@ class TestTool(QtWidgets.QDialog):
         self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
                                              expand=True) or []
         self.object_to_instance = self.selection[0]
+        self.main_object = self.selection[1]
 
         # print(vertex_name)
 
@@ -166,6 +180,8 @@ class TestTool(QtWidgets.QDialog):
 
                 self.position = cmds.pointPosition(self.vertex, w=True)
 
+
+
                 cmds.move(self.position[0], self.position[1],
                           self.position[2], self.new_instance, a=True, ws=True)
                 cmds.rename(self.new_instance, "instance")
@@ -174,6 +190,46 @@ class TestTool(QtWidgets.QDialog):
             print("Please ensure the first object you select is a transform.")
 
         # Gets the center of the object's face
+
+
+    @QtCore.Slot()
+    def orient_to_normals(self):
+
+        self.selection = cmds.ls(os=True, fl=True)
+        self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
+                                             expand=True) or []
+
+
+        self.object_to_instance = self.selection[0]
+        self.main_object = self.selection[1]
+
+        # print(vertex_name)
+
+
+        if cmds.objectType(self.object_to_instance, isType="transform"):
+
+            for self.vertex in self.vertex_name:
+                self.new_instance = cmds.instance(self.object_to_instance)
+
+                self.position = cmds.pointPosition(self.vertex, w=True)
+
+
+
+                cmds.move(self.position[0], self.position[1],
+                          self.position[2], self.new_instance, a=True, ws=True)
+
+                self.nconst = cmds.normalConstraint(self.main_object,
+                                                    self.new_instance)
+                cmds.rename(self.new_instance, "instance")
+
+                cmds.delete(self.nconst)
+
+        else:
+            print("Please ensure the first object you select is a transform.")
+
+
+
+
 
     @QtCore.Slot()
     def rand_scale_min(self):
@@ -184,6 +240,7 @@ class TestTool(QtWidgets.QDialog):
     def rand_scale_max(self):
         self.p_max = self.rand_spinbox_max.value()
         return self.p_max
+
 
     @QtCore.Slot()
     def random_scale(self):
