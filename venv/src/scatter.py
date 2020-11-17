@@ -38,7 +38,8 @@ class TestTool(QtWidgets.QDialog):
         self.title_lbl.setStyleSheet("font: bold 20px")
 
         self.scatter_button = QtWidgets.QPushButton("Scatter")
-        self.scatter_to_normal_button = QtWidgets.QPushButton("Scatter to Normals")
+        self.scatter_to_normal_button = QtWidgets.QPushButton(
+            "Scatter to Normals")
         self.random_dense_spinbox = QtWidgets.QSpinBox()
         self.random_dense_spinbox.setFixedWidth(50)
 
@@ -73,11 +74,9 @@ class TestTool(QtWidgets.QDialog):
         self.scatter_button.clicked.connect(self.instance_vert)
         self.scatter_to_normal_button.clicked.connect(self.orient_to_normals)
 
-
         self.rand_spinbox_min.valueChanged.connect(self.rand_scale_min)
         self.rand_spinbox_max.valueChanged.connect(self.rand_scale_max)
         self.rand_scale_button.clicked.connect(self.random_scale)
-
 
         self.rand_rot_x_min.valueChanged.connect(self.p_rand_rot_x_min)
         self.rand_rot_x_max.valueChanged.connect(self.p_rand_rot_x_max)
@@ -166,21 +165,21 @@ class TestTool(QtWidgets.QDialog):
     @QtCore.Slot()
     def instance_vert(self):
         self.selection = cmds.ls(os=True, fl=True)
-        self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
-                                             expand=True) or []
+        self.vert_list = cmds.ls(selection=True, fl=True)
+        cmds.filterExpand(self.vert_list, selectionMask=31, expand=True) or []
+        self.obj_vert_list = cmds.ls(self.vert_list[1] + ".vtx[*]",
+                                     flatten=True)
+
         self.object_to_instance = self.selection[0]
-        self.main_object = self.selection[1]
 
         # print(vertex_name)
 
         if cmds.objectType(self.object_to_instance, isType="transform"):
 
-            for self.vertex in self.vertex_name:
+            for self.vertex in self.obj_vert_list:
                 self.new_instance = cmds.instance(self.object_to_instance)
 
                 self.position = cmds.pointPosition(self.vertex, w=True)
-
-
 
                 cmds.move(self.position[0], self.position[1],
                           self.position[2], self.new_instance, a=True, ws=True)
@@ -191,29 +190,26 @@ class TestTool(QtWidgets.QDialog):
 
         # Gets the center of the object's face
 
-
     @QtCore.Slot()
     def orient_to_normals(self):
 
         self.selection = cmds.ls(os=True, fl=True)
-        self.vertex_name = cmds.filterExpand(self.selection, selectionMask=31,
-                                             expand=True) or []
-
+        self.vert_list = cmds.ls(selection=True, fl=True)
+        cmds.filterExpand(self.vert_list, selectionMask=31, expand=True) or []
+        self.obj_vert_list = cmds.ls(self.vert_list[1] + ".vtx[*]",
+                                     flatten=True)
 
         self.object_to_instance = self.selection[0]
         self.main_object = self.selection[1]
 
         # print(vertex_name)
 
-
         if cmds.objectType(self.object_to_instance, isType="transform"):
 
-            for self.vertex in self.vertex_name:
+            for self.vertex in self.obj_vert_list:
                 self.new_instance = cmds.instance(self.object_to_instance)
 
                 self.position = cmds.pointPosition(self.vertex, w=True)
-
-
 
                 cmds.move(self.position[0], self.position[1],
                           self.position[2], self.new_instance, a=True, ws=True)
@@ -227,10 +223,6 @@ class TestTool(QtWidgets.QDialog):
         else:
             print("Please ensure the first object you select is a transform.")
 
-
-
-
-
     @QtCore.Slot()
     def rand_scale_min(self):
         self.p_min = self.rand_spinbox_min.value()
@@ -240,7 +232,6 @@ class TestTool(QtWidgets.QDialog):
     def rand_scale_max(self):
         self.p_max = self.rand_spinbox_max.value()
         return self.p_max
-
 
     @QtCore.Slot()
     def random_scale(self):
