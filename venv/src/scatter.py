@@ -40,8 +40,12 @@ class TestTool(QtWidgets.QDialog):
         self.scatter_button = QtWidgets.QPushButton("Scatter")
         self.scatter_to_normal_button = QtWidgets.QPushButton(
             "Scatter to Normals")
-        self.random_dense_spinbox = QtWidgets.QSpinBox()
-        self.random_dense_spinbox.setFixedWidth(50)
+        self.density_controller = QtWidgets.QDoubleSpinBox()
+        self.density_controller.setFixedWidth(50)
+        self.density_controller.setRange(1, 100)
+        self.density_controller.setValue(100)
+
+        self.is_whole = QtWidgets.QCheckBox("Selecting Whole Object")
 
         self.scatter_lbl = QtWidgets.QLabel("Make your selections before "
                                             "Scattering")
@@ -62,7 +66,10 @@ class TestTool(QtWidgets.QDialog):
         main_lay.addWidget(self.scatter_lbl)
         main_lay.addWidget(self.scatter_button)
         main_lay.addWidget(self.scatter_to_normal_button)
-        main_lay.addWidget(self.rand_dense_lbl, 0, 4)
+        main_lay.addWidget(self.rand_dense_lbl, 0, 1)
+        main_lay.addWidget(self.density_controller)
+        main_lay.addWidget(self.is_whole)
+
 
         main_lay.addStretch()
         main_lay.addLayout(self.random_rotation_ui())
@@ -78,6 +85,9 @@ class TestTool(QtWidgets.QDialog):
         self.rand_spinbox_max.valueChanged.connect(self.rand_scale_max)
         self.rand_scale_button.clicked.connect(self.random_scale)
 
+        self.is_whole.stateChanged.connect(self.whole_object_check)
+        self.density_controller.valueChanged.connect(self.density)
+
         self.rand_rot_x_min.valueChanged.connect(self.p_rand_rot_x_min)
         self.rand_rot_x_max.valueChanged.connect(self.p_rand_rot_x_max)
         self.rand_rot_y_min.valueChanged.connect(self.p_rand_rot_y_min)
@@ -89,11 +99,13 @@ class TestTool(QtWidgets.QDialog):
     def random_scale_ui(self):
         self.rand_scale_title = QtWidgets.QLabel("Random Scale")
         self.rand_spinbox_min = QtWidgets.QDoubleSpinBox()
+        self.rand_spinbox_min.setValue(1)
         self.rand_spinbox_min.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_spinbox_min.setFixedWidth(50)
 
         self.rand_spinbox_max = QtWidgets.QDoubleSpinBox()
+        self.rand_spinbox_max.setValue(1)
         self.rand_spinbox_max.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_spinbox_max.setFixedWidth(50
@@ -113,31 +125,37 @@ class TestTool(QtWidgets.QDialog):
     def random_rotation_ui(self):
         self.rand_rotation_title = QtWidgets.QLabel("Random Rotation")
         self.rand_rot_x_min = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_x_min.setValue(1)
         self.rand_rot_x_min.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_rot_x_min.setFixedWidth(50)
 
         self.rand_rot_x_max = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_x_max.setValue(1)
         self.rand_rot_x_max.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_rot_x_max.setFixedWidth(50)
 
         self.rand_rot_y_min = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_y_min.setValue(1)
         self.rand_rot_y_min.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_rot_y_min.setFixedWidth(50)
 
         self.rand_rot_y_max = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_y_max.setValue(1)
         self.rand_rot_y_max.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_rot_y_max.setFixedWidth(50)
 
         self.rand_rot_z_min = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_z_min.setValue(1)
         self.rand_rot_z_min.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_rot_z_min.setFixedWidth(50)
 
         self.rand_rot_z_max = QtWidgets.QDoubleSpinBox()
+        self.rand_rot_z_max.setValue(1)
         self.rand_rot_z_max.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.PlusMinus)
         self.rand_rot_z_max.setFixedWidth(50)
@@ -163,6 +181,21 @@ class TestTool(QtWidgets.QDialog):
         return layout
 
     @QtCore.Slot()
+    def whole_object_check(self):
+
+        self.is_whole_object = self.is_whole.checkState()
+
+        return self.is_whole_object
+
+    @QtCore.Slot()
+    def density(self):
+
+        self.def_density = self.density_controller.value() / 100
+
+        return self.def_density
+
+
+    @QtCore.Slot()
     def instance_vert(self):
         self.selection = cmds.ls(os=True, fl=True)
         self.vert_list = cmds.ls(selection=True, fl=True)
@@ -170,13 +203,22 @@ class TestTool(QtWidgets.QDialog):
         self.obj_vert_list = cmds.ls(self.vert_list[1] + ".vtx[*]",
                                      flatten=True)
 
+        if self.is_whole_object:
+            self.den_list = random.sample(self.obj_vert_list, int(float(
+                len(self.obj_vert_list) * self.def_density)))
+        else:
+            self.den_list = random.sample(self.vert_list, int(float(len
+                                     (self.vert_list)) * self.def_density))
+
+
+
         self.object_to_instance = self.selection[0]
 
         # print(vertex_name)
 
         if cmds.objectType(self.object_to_instance, isType="transform"):
 
-            for self.vertex in self.obj_vert_list:
+            for self.vertex in self.den_list:
                 self.new_instance = cmds.instance(self.object_to_instance)
 
                 self.position = cmds.pointPosition(self.vertex, w=True)
@@ -199,6 +241,13 @@ class TestTool(QtWidgets.QDialog):
         self.obj_vert_list = cmds.ls(self.vert_list[1] + ".vtx[*]",
                                      flatten=True)
 
+        if self.is_whole_object:
+            self.den_list = random.sample(self.obj_vert_list, int(float(
+                len(self.obj_vert_list) * self.def_density)))
+        else:
+            self.den_list = random.sample(self.vert_list, int(float(len
+                                     (self.vert_list)) * self.def_density))
+
         self.object_to_instance = self.selection[0]
         self.main_object = self.selection[1]
 
@@ -206,7 +255,7 @@ class TestTool(QtWidgets.QDialog):
 
         if cmds.objectType(self.object_to_instance, isType="transform"):
 
-            for self.vertex in self.obj_vert_list:
+            for self.vertex in self.den_list:
                 self.new_instance = cmds.instance(self.object_to_instance)
 
                 self.position = cmds.pointPosition(self.vertex, w=True)
