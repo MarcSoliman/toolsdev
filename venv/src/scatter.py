@@ -70,7 +70,6 @@ class TestTool(QtWidgets.QDialog):
         main_lay.addWidget(self.density_controller)
         main_lay.addWidget(self.is_whole)
 
-
         main_lay.addStretch()
         main_lay.addLayout(self.random_rotation_ui())
         main_lay.addLayout(self.random_scale_ui())
@@ -194,7 +193,6 @@ class TestTool(QtWidgets.QDialog):
 
         return self.def_density
 
-
     @QtCore.Slot()
     def instance_vert(self):
         self.selection = cmds.ls(os=True, fl=True)
@@ -207,10 +205,9 @@ class TestTool(QtWidgets.QDialog):
             self.den_list = random.sample(self.obj_vert_list, int(float(
                 len(self.obj_vert_list) * self.def_density)))
         else:
-            self.den_list = random.sample(self.vert_list, int(float(len
-                                     (self.vert_list)) * self.def_density))
-
-
+            self.den_list = random.sample(self.vert_list,
+                                          int(float(len(self.vert_list)) *
+                                              self.def_density))
 
         self.object_to_instance = self.selection[0]
 
@@ -246,7 +243,8 @@ class TestTool(QtWidgets.QDialog):
                 len(self.obj_vert_list) * self.def_density)))
         else:
             self.den_list = random.sample(self.vert_list, int(float(len
-                                     (self.vert_list)) * self.def_density))
+                                                                    (
+                                                                        self.vert_list)) * self.def_density))
 
         self.object_to_instance = self.selection[0]
         self.main_object = self.selection[1]
@@ -264,7 +262,8 @@ class TestTool(QtWidgets.QDialog):
                           self.position[2], self.new_instance, a=True, ws=True)
 
                 self.nconst = cmds.normalConstraint(self.main_object,
-                                                    self.new_instance)
+                                                    self.new_instance,
+                                                    aim=(0.0, 1.0, 0.0))
                 cmds.rename(self.new_instance, "instance")
 
                 cmds.delete(self.nconst)
@@ -355,58 +354,3 @@ class TestTool(QtWidgets.QDialog):
             self.instance_names)
 
         return self.instance_names
-
-
-if __name__ == "__main__":
-    d = TestTool()
-    d.show()
-
-
-def create_cylinder():
-    cmds.polyCylinder()
-
-
-# Functions which will be used to expand on the tool
-"""def get_face_center(p_face_name):
-    vertex_positions = (cmds.xform(p_face_name, q=True, ws=True, t=True))
-
-    vertex_positions = [vertex_positions[n:n + 3] for n in range(0, len(
-                                                        vertex_positions),
-                                                                 3)]
-
-    _sum = dt.Vector(0, 0, 0)
-    for v in vertex_positions:
-        _sum = _sum + v
-
-    num_vertices = len(vertex_positions)
-
-    average = _sum / num_vertices
-
-    if (_sum == 0) or (num_vertices == 0):
-        average = [0, 0, 0]
-        cmds.warning("Attempt to divide by 0")
-
-    else:
-        return average"""
-
-"""def instance_face():
-    selection = cmds.ls(os=True, fl=True)
-    face_name = cmds.filterExpand(selection, selectionMask=34,
-                                  expand=True)
-
-    object_to_instance = selection[0]
-    main_object = selection[1]
-    if cmds.objectType(object_to_instance, isType="transform"):
-
-        for face in face_name:
-            new_instance = cmds.instance(object_to_instance)
-
-            position = get_face_center(str(face))
-
-            cmds.normalConstraint(main_object, new_instance)
-
-            cmds.move(position[0], position[1], position[2], new_instance,
-                      a=True, ws=True)
-
-    else:
-        print("Please ensure the first object you select is a transform.")"""
